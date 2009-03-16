@@ -12,77 +12,39 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details, published at 
 # http://www.gnu.org/copyleft/gpl.html
-#
-# =========================
-#
-# This is an empty TWiki plugin. Use it as a template
-# for your own plugins; see %SYSTEMWEB%.Plugins for details.
-#
-# Each plugin is a package that may contain these functions:        VERSION:
-#
-#   initPlugin              ( $topic, $web, $user, $installWeb )    1.000
-#   initializeUserHandler   ( $loginName, $url, $pathInfo )         1.010
-#   registrationHandler     ( $web, $wikiName, $loginName )         1.010
-#   commonTagsHandler       ( $text, $topic, $web )                 1.000
-#   startRenderingHandler   ( $text, $web )                         1.000
-#   outsidePREHandler       ( $text )                               1.000
-#   insidePREHandler        ( $text )                               1.000
-#   endRenderingHandler     ( $text )                               1.000
-#   beforeEditHandler       ( $text, $topic, $web )                 1.010
-#   afterEditHandler        ( $text, $topic, $web )                 1.010
-#   beforeSaveHandler       ( $text, $topic, $web )                 1.010
-#   writeHeaderHandler      ( $query )                              1.010  Use only in one Plugin
-#   redirectCgiQueryHandler ( $query, $url )                        1.010  Use only in one Plugin
-#   getSessionValueHandler  ( $key )                                1.010  Use only in one Plugin
-#   setSessionValueHandler  ( $key, $value )                        1.010  Use only in one Plugin
-#
-# initPlugin is required, all other are optional. 
-# For increased performance, all handlers except initPlugin are
-# disabled. To enable a handler remove the leading DISABLE_ from
-# the function name. Remove disabled handlers you do not need.
-#
-# NOTE: To interact with TWiki use the official TWiki functions 
-# in the TWiki::Func module. Do not reference any functions or
-# variables elsewhere in TWiki!!
-
 
 # =========================
-package TWiki::Plugins::BibliographyPlugin;    # change the package name and $pluginName!!!
+package Foswiki::Plugins::BibliographyPlugin;    # change the package name and $pluginName!!!
 
 # =========================
 use vars qw(
-        $web $topic $user $installWeb $VERSION $RELEASE $pluginName
+        $web $topic $VERSION $RELEASE $pluginName
         $debug 
     );
 
-# This should always be $Rev$ so that TWiki can determine the checked-in
+# This should always be $Rev$ so that Foswiki can determine the checked-in
 # status of the plugin. It is used by the build automation tools, so
 # you should leave it alone.
-$VERSION = '$Rev$';
+our $VERSION = '$Rev$';
 
 # This is a free-form string you can use to "name" your own plugin version.
 # It is *not* used by the build automation tools, but is reported as part
 # of the version number in PLUGINDESCRIPTIONS.
-$RELEASE = 'Dakar';
+our $RELEASE = '1.0';
 
-$pluginName = 'BibliographyPlugin';  # Name of this Plugin
+our $pluginName = 'BibliographyPlugin';  # Name of this Plugin
 
 # =========================
 sub initPlugin
 {
-    ( $topic, $web, $user, $installWeb ) = @_;
-
-    # check for Plugins.pm versions
-    if( $TWiki::Plugins::VERSION < 1 ) {
-        TWiki::Func::writeWarning( "Version mismatch between $pluginName and Plugins.pm" );
-        return 0;
-    }
+    ( $topic, $web ) = @_;
 
     # Get plugin debug flag
-    $debug = TWiki::Func::getPreferencesFlag( "\U$pluginName\E_DEBUG" );
+    #$debug = Foswiki::Func::getPreferencesFlag( "\U$pluginName\E_DEBUG" );
+    $debug = 1;
 
     # Plugin correctly initialized
-    TWiki::Func::writeDebug( "- TWiki::Plugins::${pluginName}::initPlugin( $web.$topic ) is OK" ) if $debug;
+    Foswiki::Func::writeDebug( "- Foswiki::Plugins::${pluginName}::initPlugin( $web.$topic ) is OK" ) if $debug;
     return 1;
 }
  
@@ -96,10 +58,10 @@ sub readBibliography
 
   foreach $topic (@referencesTopics)
   {
-    TWiki::Func::writeDebug("readBibliography:: reading $topic") if $debug;
+    Foswiki::Func::writeDebug("readBibliography:: reading $topic") if $debug;
 
-    $_ = TWiki::Func::readTopicText($web, $topic, "", 1);
-    TWiki::Func::writeDebug($_) if $debug;
+    $_ = Foswiki::Func::readTopicText($web, $topic, "", 1);
+    Foswiki::Func::writeDebug($_) if $debug;
     while (m/^\|([^\|]*)\|([^\|]*)\|/gm)
     {
       ($key,$value) = ($1,$2);
@@ -112,11 +74,11 @@ sub readBibliography
                               "cited" => 0,
                               "order" => 0
                             };
-      TWiki::Func::writeDebug("Adding key $key") if $debug;
+      Foswiki::Func::writeDebug("Adding key $key") if $debug;
     }
   }
 
-  TWiki::Func::writeDebug("ended reading bibliography topics") if $debug;
+  Foswiki::Func::writeDebug("ended reading bibliography topics") if $debug;
   return %bibliography;
 
 }
@@ -135,6 +97,7 @@ sub generateBibliography
 {
   my ($header, %bibliography) = @_;
 
+  # could give decent class names
   my $list = "<ol> \n";
   foreach $key (sort bibliographyOrderSort (keys %bibliography))
   {
@@ -143,7 +106,7 @@ sub generateBibliography
   }
   $list .= "</ol> \n";
  
-  return TWiki::Func::renderText($header) . "\n" . $list;
+  return Foswiki::Func::renderText($header) . "\n" . $list;
 }
 
 sub parseArgs
@@ -151,14 +114,14 @@ sub parseArgs
   my $args = $_[0];
 
   # get the typed header. Defaults to the BIBLIOGRAPHYPLUGIN_DEFAULTHEADER setting.
-  my $header = &TWiki::Func::getPreferencesValue("BIBLIOGRAPHYPLUGIN_DEFAULTHEADER");
+  my $header = &Foswiki::Func::getPreferencesValue("BIBLIOGRAPHYPLUGIN_DEFAULTHEADER");
   if ($args =~ m/header="([^"]*)"/)
   {
     $header = $1;
   }
 
   #get the typed references topic. Defaults do the BIBLIOGRAPHYPLUGIN_DEFAULTBIBLIOGRAPHYTOPIC.
-  my $referencesTopics = &TWiki::Func::getPreferencesValue("BIBLIOGRAPHYPLUGIN_DEFAULTBIBLIOGRAPHYTOPIC");
+  my $referencesTopics = &Foswiki::Func::getPreferencesValue("BIBLIOGRAPHYPLUGIN_DEFAULTBIBLIOGRAPHYTOPIC");
   if ($args =~ m/referencesTopic="([^"]*)"/)
   {
     $referencesTopics = $1;
@@ -166,7 +129,7 @@ sub parseArgs
   @referencesTopics = split(/\s*,\s*/,$referencesTopics);
 
   # get the typed order. Defaults to BIBLIOGRAPHYPLUGIN_DEFAULTSORTING setting.
-  my $order = &TWiki::Func::getPreferencesValue("BIBLIOGRAPHYPLUGIN_DEFAULTSORTING");
+  my $order = &Foswiki::Func::getPreferencesValue("BIBLIOGRAPHYPLUGIN_DEFAULTSORTING");
   if ($args =~ m/order="([^"]*)"/)
   {
     $order = $1;
@@ -195,7 +158,7 @@ sub preRenderingHandler
 {
 ### my ( $text, $web ) = @_;   # do not uncomment, use $_[0], $_[1] instead
 
-    TWiki::Func::writeDebug( "- ${pluginName}::startRenderingHandler( $_[1] )" ) if $debug;
+    Foswiki::Func::writeDebug( "- ${pluginName}::startRenderingHandler( $_[1] )" ) if $debug;
 
     # This handler is called by getRenderedVersion just before the line loop
 
