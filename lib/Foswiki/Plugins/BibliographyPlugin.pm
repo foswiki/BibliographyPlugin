@@ -1,5 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
+# Copyright (C) 2009 Andrew Jones, andrewjones86@gmail.com
 # Copyright (C) 2004 Antonio Terceiro, asaterceiro@inf.ufrgs.br
 #
 # This program is free software; you can redistribute it and/or
@@ -14,37 +15,24 @@
 # http://www.gnu.org/copyleft/gpl.html
 
 # =========================
-package Foswiki::Plugins::BibliographyPlugin;    # change the package name and $pluginName!!!
+package Foswiki::Plugins::BibliographyPlugin;
 
 # =========================
-use vars qw(
-        $web $topic $VERSION $RELEASE $pluginName
-        $debug 
-    );
+use vars qw( $web $topic $VERSION $RELEASE $SHORTDESCRIPTION $debug $pluginName $NO_PREFS_IN_TOPIC );
 
-# This should always be $Rev$ so that Foswiki can determine the checked-in
-# status of the plugin. It is used by the build automation tools, so
-# you should leave it alone.
 our $VERSION = '$Rev$';
-
-# This is a free-form string you can use to "name" your own plugin version.
-# It is *not* used by the build automation tools, but is reported as part
-# of the version number in PLUGINDESCRIPTIONS.
 our $RELEASE = '1.0';
-
-our $pluginName = 'BibliographyPlugin';  # Name of this Plugin
+our $SHORTDESCRIPTION = 'Cite bibliography in one topic and get a references list automatically created.';
+our $NO_PREFS_IN_TOPIC = 1;
+our $pluginName = 'BibliographyPlugin';
 
 # =========================
 sub initPlugin
 {
     ( $topic, $web ) = @_;
 
-    # Get plugin debug flag
-    #$debug = Foswiki::Func::getPreferencesFlag( "\U$pluginName\E_DEBUG" );
-    $debug = 1;
-
     # Plugin correctly initialized
-    Foswiki::Func::writeDebug( "- Foswiki::Plugins::${pluginName}::initPlugin( $web.$topic ) is OK" ) if $debug;
+    Foswiki::Func::writeDebug( "- Foswiki::Plugins::${pluginName}::initPlugin( $web.$topic ) is OK" ) if $Foswiki::cfg{Plugins}{$pluginName}{Debug};
     return 1;
 }
  
@@ -58,10 +46,10 @@ sub readBibliography
 
   foreach $topic (@referencesTopics)
   {
-    Foswiki::Func::writeDebug("readBibliography:: reading $topic") if $debug;
+    Foswiki::Func::writeDebug("readBibliography:: reading $topic") if $Foswiki::cfg{Plugins}{$pluginName}{Debug};
 
     $_ = Foswiki::Func::readTopicText($web, $topic, "", 1);
-    Foswiki::Func::writeDebug($_) if $debug;
+    Foswiki::Func::writeDebug($_) if $Foswiki::cfg{Plugins}{$pluginName}{Debug};
     while (m/^\|([^\|]*)\|([^\|]*)\|/gm)
     {
       ($key,$value) = ($1,$2);
@@ -74,11 +62,11 @@ sub readBibliography
                               "cited" => 0,
                               "order" => 0
                             };
-      Foswiki::Func::writeDebug("Adding key $key") if $debug;
+      Foswiki::Func::writeDebug("Adding key $key") if $Foswiki::cfg{Plugins}{$pluginName}{Debug};
     }
   }
 
-  Foswiki::Func::writeDebug("ended reading bibliography topics") if $debug;
+  Foswiki::Func::writeDebug("ended reading bibliography topics") if $Foswiki::cfg{Plugins}{$pluginName}{Debug};
   return %bibliography;
 
 }
@@ -114,14 +102,14 @@ sub parseArgs
   my $args = $_[0];
 
   # get the typed header. Defaults to the BIBLIOGRAPHYPLUGIN_DEFAULTHEADER setting.
-  my $header = &Foswiki::Func::getPreferencesValue("BIBLIOGRAPHYPLUGIN_DEFAULTHEADER");
+  my $header = &Foswiki::Func::getPluginPreferencesValue("DEFAULTHEADER") || '---++ References';
   if ($args =~ m/header="([^"]*)"/)
   {
     $header = $1;
   }
 
   #get the typed references topic. Defaults do the BIBLIOGRAPHYPLUGIN_DEFAULTBIBLIOGRAPHYTOPIC.
-  my $referencesTopics = &Foswiki::Func::getPreferencesValue("BIBLIOGRAPHYPLUGIN_DEFAULTBIBLIOGRAPHYTOPIC");
+  my $referencesTopics = &Foswiki::Func::getPluginPreferencesValue("DEFAULTBIBLIOGRAPHYTOPIC") || '%SYSTEMWEB%.BibliographyPlugin';
   if ($args =~ m/referencesTopic="([^"]*)"/)
   {
     $referencesTopics = $1;
@@ -129,7 +117,7 @@ sub parseArgs
   @referencesTopics = split(/\s*,\s*/,$referencesTopics);
 
   # get the typed order. Defaults to BIBLIOGRAPHYPLUGIN_DEFAULTSORTING setting.
-  my $order = &Foswiki::Func::getPreferencesValue("BIBLIOGRAPHYPLUGIN_DEFAULTSORTING");
+  my $order = &Foswiki::Func::getPluginPreferencesValue("DEFAULTSORTING") || 'alpha';
   if ($args =~ m/order="([^"]*)"/)
   {
     $order = $1;
@@ -158,7 +146,7 @@ sub preRenderingHandler
 {
 ### my ( $text, $web ) = @_;   # do not uncomment, use $_[0], $_[1] instead
 
-    Foswiki::Func::writeDebug( "- ${pluginName}::startRenderingHandler( $_[1] )" ) if $debug;
+    Foswiki::Func::writeDebug( "- ${pluginName}::startRenderingHandler( $_[1] )" ) if $Foswiki::cfg{Plugins}{$pluginName}{Debug};
 
     # This handler is called by getRenderedVersion just before the line loop
 

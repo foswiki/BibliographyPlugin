@@ -1,2 +1,3 @@
 data/System/BibliographyPlugin.txt Documentation Topic
 lib/Foswiki/Plugins/BibliographyPlugin.pm Plugin Perl Module
+lib/Foswiki/Plugins/BibliographyPlugin/Config.spec Configure spec

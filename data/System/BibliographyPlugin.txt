@@ -1,7 +1,16 @@
-%META:TOPICINFO{author="AntonioTerceiro" date="1125283434" format="1.1" version="1.2"}%
----+ <nop/>%TOPIC%
+%META:TOPICINFO{author="ProjectContributor" date="1125283434" format="1.1" version="1.2"}%
+---+!! !BibliographyPlugin
+<!--
+One line description, required for extensions repository catalog.
+   * Set SHORTDESCRIPTION = Cite bibliography in one topic and get a references list automatically created.
+-->
+%SHORTDESCRIPTION%
 
-BibliographyPlugin manages citations inside a Foswiki topic, and can generate an References List at the end of the topic. This should be every usefull for writing conference papers, journal articles, ellaborated news, etc.
+%TOC%
+
+---++ Description
+
+The Bibliography Plugin manages citations inside a Foswiki topic, and can generate an References List at the end of the topic. This should be every usefull for writing conference papers, journal articles, ellaborated news, etc.
 
 ---++ Syntax Rules
 
@@ -35,7 +44,7 @@ Then, in the topic where you want to reference and get a references list, you ca
   <tr>
     <th> You type ...
     </th>
-    <th> ... and you get:
+    <th> ... and you get (if installed):
     </th>
   </tr>
   <tr>
@@ -74,51 +83,43 @@ that are not in your bibliography
 
 ---++ Plugin Settings
 
-Plugin settings are stored as preferences variables. To reference a plugin setting write ==%<nop>&lt;plugin&gt;_&lt;setting&gt;%==, i.e. ==%<nop>INTERWIKIPLUGIN_SHORTDESCRIPTION%==
-
-	* One line description, is shown in the %SYSTEMWEB%.TextFormattingRules topic:
-	* Set SHORTDESCRIPTION = cite bibliography in one topic and get a references list automatically created.
-
-	* Debug plugin: (See output in =data/debug.txt=)
-	* Set DEBUG = 0
+Plugin settings are stored as preferences values. To change the setting you need to overwrite them in %WIKIPREFSTOPIC%. Changing them here will have no effect! This allows you to upgrade the plugin without having worry about loosing your settings.
 
 	* Default topic to get references from:
-	* Set DEFAULTBIBLIOGRAPHYTOPIC = %SYSTEMWEB%.BibliographyPlugin
+	   * Set BIBLIOGRAPHYPLUGIN_DEFAULTBIBLIOGRAPHYTOPIC = %SYSTEMWEB%.BibliographyPlugin
 
 	* Default sorting for references:
-	* Set DEFAULTSORTING = alpha
+	   * Set BIBLIOGRAPHYPLUGIN_DEFAULTSORTING = alpha
 
 	* Default header for the references list:
-	* Set DEFAULTHEADER = ---++ References
+	   * Set BIBLIOGRAPHYPLUGIN_DEFAULTHEADER = ---++ References
 
----++ Plugin Installation Instructions
+---++ Installation Instructions
 
-__Note:__ You do not need to install anything on the browser to use this plugin. The following instructions are for the administrator who installs the plugin on the server where Foswiki is running. 
+%$INSTALL_INSTRUCTIONS%
 
-	* Download the ZIP file from the Plugin web (see below)
-	* Unzip ==%TOPIC%.zip== in your twiki installation directory. Content:
-     | *File:* | *Description:* |
-     | ==data/System/%TOPIC%.txt== | Plugin topic |
-     | ==data/System/%TOPIC%.txt,v== | Plugin topic repository |
-     | ==lib/Foswiki/Plugins/%TOPIC%.pm== | Plugin Perl module |
-	* (Dakar) Visit =configure= in your Foswiki installation, and enable the plugin in the {Plugins} section.
-	* Test if the installation was successful: see above at [[#Example]]
+---++ Plugin Files
+
+   | *File:* | *Description:* |
+%$MANIFEST%
 
 ---++ Plugin Info
 
-|  Plugin Author: | TWiki:Main/AntonioTerceiro |
-|  Plugin Version: | 23 Aug 2004  |
+|  Plugin Author(s): | Foswiki:Main.AndrewJones |
+|  Previous Author(s): | TWiki:Main.AntonioTerceiro |
+|  Copyright: | &copy; 2009, Andrew Jones, &copy; 2004, Antonio Terceiro |
+|  License: | [[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]] |
+|  Plugin Release: | %$RELEASE% |
+|  Plugin Version: | %$VERSION% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
-|  28 Aug 2005: | =1.020=: Adhering to official handlers in TWiki:Codev/DakarRelease. Added <code>%<nop/>CITEINLINE{...}%</code>. |
+|  17 Mar 2009 | 1.0: Foswikitask:Item1251 - Initial release for Foswiki - Foswiki:Main.AndrewJones |
+|  28 Aug 2005: | Adhering to official handlers in TWiki:Codev/DakarRelease. Added <code>%<nop/>CITEINLINE{...}%</code>. |
 |  23 Aug 2004: | Added multiple references sources support |
 |  17 Jun 2004: | Initial version |
-|  CPAN Dependencies: | none |
-|  Other Dependencies: | none |
-|  Perl Version: | 5.005 |
+|  Dependencies: | None |
 |  Plugin Home: | http://foswiki.org/Extensions/%TOPIC% |
-|  Feedback: | http://foswiki.org/Extensions/%TOPIC%Dev |
+|  Support: | http://foswiki.org/Support/%TOPIC% |
 
 __Related Topics:__ %SYSTEMWEB%.DefaultPreferences, %USERSWEB%.SitePreferences, [[%SYSTEMWEB%.Plugins][Plugins]]
 
--- TWiki:Main/AntonioTerceiro - 17 Jun 2004
-
+<!-- Do _not_ attempt to edit this topic; it is auto-generated. Please add comments/questions/remarks to the feedback topic on twiki.org instead. -->
