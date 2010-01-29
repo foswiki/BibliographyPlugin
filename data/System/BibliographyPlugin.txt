@@ -19,7 +19,7 @@ First of all, you must have a topic with a list of bibliography entries. Each en
 The bibliography list should look like this (from a <nop/>BibTex [[http://shelah.logic.at/eindex.html][example]] found with [[http://www.google.com][Google]]):
 
 | *Key* | *Description* |
-| big | Jass, Hugh. _A big paper_. The journal of big papers, 7991, volume MCMXCVII. |
+| big | Jass, Hugh. _A big paper_. The journal of big papers, 7991, volume MCMXCVII. %ICON{note}% |
 | small | Freely, I.P. _A small paper_. The journal of small papers, 1997. (to appear). |
 
 Then, in the topic where you want to reference and get a references list, you can use:
@@ -98,21 +98,17 @@ Plugin settings are stored as preferences values. To change the setting you need
 
 %$INSTALL_INSTRUCTIONS%
 
----++ Plugin Files
-
-   | *File:* | *Description:* |
-%$MANIFEST%
-
 ---++ Plugin Info
 
 |  Plugin Author(s): | Foswiki:Main.AndrewJones |
-|  Previous Author(s): | TWiki:Main.AntonioTerceiro |
-|  Copyright: | &copy; 2009, Andrew Jones, &copy; 2004, Antonio Terceiro |
+|  Previous Author(s): | Foswiki:Main.AntonioTerceiro |
+|  Copyright: | &copy; 2009 - 2010, Andrew Jones, &copy; 2004, Antonio Terceiro |
 |  License: | [[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]] |
 |  Plugin Release: | %$RELEASE% |
 |  Plugin Version: | %$VERSION% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
-|  17 Mar 2009 | 1.0: Foswikitask:Item1251 - Initial release for Foswiki - Foswiki:Main.AndrewJones |
+|  29 Jan 2010 | 1.1: Foswikitask:Item8440 - Expand Macros in References -- Foswiki:Main.AndrewJones |
+|  17 Mar 2009 | 1.0: Foswikitask:Item1251 - Initial release for Foswiki -- Foswiki:Main.AndrewJones |
 |  28 Aug 2005: | Adhering to official handlers in TWiki:Codev/DakarRelease. Added <code>%<nop/>CITEINLINE{...}%</code>. |
 |  23 Aug 2004: | Added multiple references sources support |
 |  17 Jun 2004: | Initial version |

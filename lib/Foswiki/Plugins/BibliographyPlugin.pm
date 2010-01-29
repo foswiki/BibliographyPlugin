@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2009 Andrew Jones, andrewjones86@gmail.com
+# Copyright (C) 2009 - 2010 Andrew Jones, http://andrew-jones.com
 # Copyright (C) 2004 Antonio Terceiro, asaterceiro@inf.ufrgs.br
 #
 # This program is free software; you can redistribute it and/or
@@ -18,10 +18,10 @@
 package Foswiki::Plugins::BibliographyPlugin;
 
 # =========================
-use vars qw( $web $topic $VERSION $RELEASE $SHORTDESCRIPTION $debug $pluginName $NO_PREFS_IN_TOPIC );
+use vars qw( $web $topic );
 
 our $VERSION = '$Rev$';
-our $RELEASE = '1.0';
+our $RELEASE = '1.1';
 our $SHORTDESCRIPTION = 'Cite bibliography in one topic and get a references list automatically created.';
 our $NO_PREFS_IN_TOPIC = 1;
 our $pluginName = 'BibliographyPlugin';
@@ -140,15 +140,13 @@ sub handleCitation
   }
 }
 
-# was startRenderingHandler before. changed to preRenderingHandler as indicated
-# in Foswiki:Extensions/DeprecatedHandlers.
-sub preRenderingHandler
+# Changed from preRenderingHandler to allow for Macro expansion in references
+# See http://foswiki.org/Tasks/Item8440
+sub beforeCommonTagsHandler
 {
 ### my ( $text, $web ) = @_;   # do not uncomment, use $_[0], $_[1] instead
 
     Foswiki::Func::writeDebug( "- ${pluginName}::startRenderingHandler( $_[1] )" ) if $Foswiki::cfg{Plugins}{$pluginName}{Debug};
-
-    # This handler is called by getRenderedVersion just before the line loop
 
     # do custom extension rule, like for example:
     # $_[0] =~ s/old/new/g;
