@@ -1,7 +1,7 @@
 %META:TOPICINFO{author="ProjectContributor" date="1125283434" format="1.1" version="1.2"}%
 ---+!! !BibliographyPlugin
 <!--
-One line description, required for extensions repository catalog.
+One line description, required for extensions repository catalog. %JQREQUIRE{"chili"}%
    * Set SHORTDESCRIPTION = Cite bibliography in one topic and get a references list automatically created.
 -->
 %SHORTDESCRIPTION%
@@ -50,12 +50,14 @@ Then, in the topic where you want to reference and get a references list, you ca
   <tr>
     <td>
 <!-- you type: -->
-<pre>
+<pre class="tml">
 You start writing, and then cite a
 small paper %<nop/>CITE{small}%. Further,
 you reference a big paper %<nop/>CITE{big}%.
 You can even reference the small
-paper again %<nop/>CITE{small}%.
+paper again %<nop/>CITE{small}%. You might
+accidentally reference a non-existent 
+%<nop/>CITE{non-existent}% reference.
 
 With %<nop/>CITEINLINE% you can reference things
 that are not in your bibliography
@@ -70,7 +72,9 @@ You start writing, and then cite a
 small paper %CITE{small}%. Further,
 you reference a big paper %CITE{big}%.
 You can even reference the small paper
-again %CITE{small}%.
+again %CITE{small}%. You might accidentally
+reference a non-existent %CITE{non-existent}%
+reference.
 
 With %<nop/>CITEINLINE% you can reference things
 that are not in your bibliography
@@ -102,11 +106,17 @@ Plugin settings are stored as preferences values. To change the setting you need
 
 |  Plugin Author(s): | Foswiki:Main.AndrewJones |
 |  Previous Author(s): | Foswiki:Main.AntonioTerceiro |
-|  Copyright: | &copy; 2009 - 2010, Andrew Jones, &copy; 2004, Antonio Terceiro |
+|  Copyright: | &copy; 2010, Paul Harvey, &copy; 2009 - 2010, Andrew Jones, &copy; 2004, Antonio Terceiro |
 |  License: | [[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]] |
 |  Plugin Release: | %$RELEASE% |
 |  Plugin Version: | %$VERSION% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  18 Jun 2010 | 2.0: Foswikitask:Item8394 - Made citation [refs] hyperlinks -- Foswiki:Main.PaulHarvey <br/>\
+                 2.0: Foswikitask:Item8459 - Convert plugin from =commonTagsHandler= to =registerTagHandler=\
+                                             and general code cleanup; Added Foswiki 1.1 compatibility; Minor\
+                                             performance improvements; Added inline alerts to aid user when\
+                                             citing missing references or using missing reference topics\
+                                             -- Foswiki:Main.PaulHarvey |
 |  29 Jan 2010 | 1.1: Foswikitask:Item8440 - Expand Macros in References -- Foswiki:Main.AndrewJones |
 |  17 Mar 2009 | 1.0: Foswikitask:Item1251 - Initial release for Foswiki -- Foswiki:Main.AndrewJones |
 |  28 Aug 2005: | Adhering to official handlers in TWiki:Codev/DakarRelease. Added <code>%<nop/>CITEINLINE{...}%</code>. |
