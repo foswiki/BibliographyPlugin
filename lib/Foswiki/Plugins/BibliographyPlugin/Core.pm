@@ -186,7 +186,7 @@ sub _parseBibliographyTopics {
             }
             else {
                 $messages{<<"MESSAGE"} = 1;
-BibliographyPlugin was unable to begin processing $web.$topic for references
+Unable to begin processing $web.$topic for references
 MESSAGE
             }
         }
