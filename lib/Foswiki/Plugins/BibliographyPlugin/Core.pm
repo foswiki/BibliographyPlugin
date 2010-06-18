@@ -9,7 +9,7 @@ use HTML::Entities;
 my %bibliography        = ();
 my $bibliography_loaded = 0;
 my %cited_refs          = ();
-my @missing_refs        = ();
+my %missing_refs        = ();
 my %ref_topics          = ();
 my $ref_sequence        = 0;
 my %messages            = ();
@@ -44,7 +44,7 @@ sub CITE {
           ) . '</noautolink>';
     }
     else {
-        push( @missing_refs, $encoded_ref );
+        $missing_refs{$encoded_ref} = 1;
         return '<noautolink>'
           . CGI::span(
             {
@@ -236,12 +236,12 @@ sub _generateBibliography {
         );
     }
     $output = CGI::ol( { -class => 'BibliographyPluginReferences' }, @list );
-    if ( scalar(@missing_refs) ) {
+    if ( scalar(%missing_refs) ) {
         $output .= '<noautolink>'
           . CGI::div(
             { -class => 'foswikiAlert BibliographyPluginMissingReferences' },
             '%MAKETEXT{"Reference(s)"}%: "'
-              . join( '", "', @missing_refs )
+              . join( '", "', keys %missing_refs )
               . '" - %MAKETEXT{"were not found in the specified reference topic(s)"}%: [['
               . join( ']], [[', keys %ref_topics ) . ']].'
           ) . '</noautolink>';
