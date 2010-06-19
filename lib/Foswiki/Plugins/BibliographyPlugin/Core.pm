@@ -246,7 +246,7 @@ sub _parseBibliographyTopics {
             }
             else {
                 $messages{<<"MESSAGE"} = 1;
-%MAKETEXT{"Unable to begin processing [_1] for references" args="[[$web.$topic]]"
+%MAKETEXT{"Unable to begin processing [_1] for references" args="[[$web.$topic]]"}%
 MESSAGE
             }
         }
