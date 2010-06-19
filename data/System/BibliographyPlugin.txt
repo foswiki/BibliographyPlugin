@@ -104,7 +104,7 @@ Plugin settings are stored as preferences values. To change the setting you need
 
 ---++ Plugin Info
 
-|  Plugin Author(s): | Foswiki:Main.AndrewJones |
+|  Plugin Author(s): | Foswiki:Main.PaulHarvey, Foswiki:Main.AndrewJones |
 |  Previous Author(s): | Foswiki:Main.AntonioTerceiro |
 |  Copyright: | &copy; 2010, Paul Harvey, &copy; 2009 - 2010, Andrew Jones, &copy; 2004, Antonio Terceiro |
 |  License: | [[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]] |
