@@ -5,54 +5,98 @@ use strict;
 use warnings;
 use Assert;
 use HTML::Entities;
+# Change to 1 for more debug messages. Perl compiler should optimise out
+# (ie. no CPU cost) any statement checking its value when set to zero.
+use constant TRACE => 0;
 
-my %bibliography        = ();
-my $bibliography_loaded = 0;
-my %cited_refs          = ();
-my %missing_refs        = ();
-my %ref_topics          = ();
-my $ref_sequence        = 0;
-my %messages            = ();
+my %bibliography         = ();
+my $bibliography_loaded  = 0;
+my %cites_deferred       = ();
+my $cites_deferred_total = 0;
+my %cited_refs           = ();
+my %missing_refs         = ();
+my %ref_topics           = ();
+my $ref_sequence         = 0;
+my %messages             = ();
 
 sub CITE {
     my ( $session, $params, $topic, $web, $topicObject ) = @_;
     my $cit         = $params->{_DEFAULT};
     my $encoded_ref = HTML::Entities::encode($cit);
 
-    $bibliography_loaded =
-      _loadBibliography( $session, $topicObject, $bibliography_loaded,
-        $params->{referencesTopic} );
-
-    if ( $bibliography{$cit} ) {
-        if ( not exists $cited_refs{$cit} ) {
-            $ref_sequence = $ref_sequence + 1;
-            $cited_refs{$cit} = {
-                value    => $bibliography{$cit},
-                name     => $cit,
-                sequence => $ref_sequence
-            };
-            $cited_refs{$cit}{sequence} = $ref_sequence;
+    if ($bibliography_loaded) {
+        Foswiki::Func::writeDebug(
+            "%CITE{$params->{_DEFAULT}}%: bibliography loaded")
+          if $Foswiki::cfg{Plugins}{BibliographyPlugin}{Debug};
+        if ( $params->{occurance} ) {
+            Foswiki::Func::writeDebug( <<"HERE") if TRACE;
+%CITE{$params->{_DEFAULT}}%: this was delayed as occurance $params->{occurance}; deleting
+HERE
+            delete( $cites_deferred{ $params->{occurance} } );
+            $cites_deferred_total = $cites_deferred_total - 1;
         }
-        return '<noautolink>'
-          . CGI::a(
-            {
-                -class => 'foswikiLink BibliographyPluginReference',
-                -title => $encoded_ref,
-                -href  => '#' . $encoded_ref
-            },
-            '[' . $cited_refs{$cit}{sequence} . ']'
-          ) . '</noautolink>';
+        if ( $bibliography{$cit} ) {
+            Foswiki::Func::writeDebug( <<"HERE") if TRACE;
+%CITE{$params->{_DEFAULT}}%: bibliography entry exists
+HERE
+            if ( not exists $cited_refs{$cit} ) {
+                Foswiki::Func::writeDebug( <<"HERE") if TRACE;
+%CITE{$params->{_DEFAULT}}%: has not been cited before, added
+HERE
+                $ref_sequence = $ref_sequence + 1;
+                $cited_refs{$cit} = {
+                    value    => $bibliography{$cit},
+                    name     => $cit,
+                    sequence => $ref_sequence
+                };
+                $cited_refs{$cit}{sequence} = $ref_sequence;
+            }
+            return '<noautolink>'
+              . CGI::a(
+                {
+                    -class => 'foswikiLink BibliographyPluginReference',
+                    -title => $encoded_ref,
+                    -href  => '#' . $encoded_ref
+                },
+                '[' . $cited_refs{$cit}{sequence} . ']'
+              ) . '</noautolink>';
+        }
+        else {
+            $missing_refs{$encoded_ref} = 1;
+            return '<noautolink>'
+              . CGI::span(
+                {
+                    -class => 'foswikiAlert BibliographyPluginMissingReference',
+                    -title => 'Did not find reference "' . $encoded_ref . '".'
+                },
+                '[??]'
+              ) . '</noautolink>';
+        }
     }
     else {
-        $missing_refs{$encoded_ref} = 1;
-        return '<noautolink>'
-          . CGI::span(
-            {
-                -class => 'foswikiAlert BibliographyPluginMissingReference',
-                -title => 'Did not find reference "' . $encoded_ref . '".'
-            },
-            '[??]'
-          ) . '</noautolink>';
+        my $output;
+        my $message;
+        $message = "%CITE{$params->{_DEFAULT}}%: Bibliography not loaded"
+          if TRACE;
+
+        # Need to delay expansion of this macro until the bibliography is
+        # loaded. If it hasn't been delayed before, give it an occurance id
+        if ( not $params->{occurance} ) {
+            my $safe_ref = $params->{_DEFAULT};    # Defuse quotes
+            $safe_ref =~ s/["]/\\"/g;
+            $cites_deferred{$cites_deferred_total} = 1;
+            $cites_deferred_total = $cites_deferred_total + 1;
+            $message .= ", delayed as occurance $cites_deferred_total" if TRACE;
+            $output =
+              "%CITE{\"$safe_ref\" occurance=\"$cites_deferred_total\"}%";
+        }
+        else {
+            $message .= ", already delayed as occurance $params->{occurance}"
+              if TRACE;
+        }
+        Foswiki::Func::writeDebug($message) if TRACE;
+
+        return $output;
     }
 }
 
@@ -75,12 +119,28 @@ sub BIBLIOGRAPHY {
       || $params->{order}
       || 'alpha';
     my $sort_fn = \&_bibliographyOrderSort;
+    $bibliography_loaded =
+      _loadBibliography( $session, $topicObject, $bibliography_loaded,
+        $params->{referencesTopic} );
+    my $output;
 
     if ( $params->{order} and ( $params->{order} eq 'alpha' ) ) {
         $sort_fn = \&_bibliographyAlphaSort;
     }
+    if ($cites_deferred_total) {
 
-    return _generateBibliography( $header, $sort_fn );
+        # Some CITE macro expansion was deferred because the bibliography
+        # wasn't loaded until now. So %BIBLIOGRAPHY{}% will be deferred until
+        # the Fosiwki renderer has had another chance to expand them.
+        Foswiki::Func::writeDebug(
+"Deferring %BIBLIOGRAPHY{}% because there were $cites_deferred_total deferred %CITE{}%s"
+        ) if $Foswiki::cfg{Plugins}{BibliographyPlugin}{Debug};
+    }
+    else {
+        $output = _generateBibliography( $header, $sort_fn );
+    }
+
+    return $output;
 }
 
 sub _loadBibliography {
@@ -102,7 +162,7 @@ sub _loadBibliography {
         return _parseBibliographyTopics( $session, \@webTopics );
     }
 
-    return 0;
+    return 1;
 }
 
 sub _parseline {
@@ -144,7 +204,9 @@ sub _getTopicObject {
         }
     }
     if ( not $topicObject ) {
-        $messages{"Did not have VIEW access to $web.$topic"} = 1;
+        $messages{<<"HERE"} = 1;
+%MAKETEXT{\"Did not have VIEW access to [_1]\" args=\"[[$web.$topic]]\"}%
+HERE
     }
 
     return $topicObject;
@@ -152,7 +214,6 @@ sub _getTopicObject {
 
 sub _parseBibliographyTopics {
     my ( $session, $webTopics ) = @_;
-    my $loaded = 0;
 
     foreach my $webTopic ( @{$webTopics} ) {
         my $web   = $webTopic->{web};
@@ -175,7 +236,6 @@ sub _parseBibliographyTopics {
                     while ( my $line = <$text_fh> ) {
                         _parseline($line);
                     }
-                    $loaded = 1;
                     ASSERT( close($text_fh),
                         '_parseBibliographyTopics: error closing text_fh' );
                 }
@@ -186,19 +246,19 @@ sub _parseBibliographyTopics {
             }
             else {
                 $messages{<<"MESSAGE"} = 1;
-Unable to begin processing $web.$topic for references
+%MAKETEXT{"Unable to begin processing [_1] for references" args="[[$web.$topic]]"
 MESSAGE
             }
         }
         else {
             Foswiki::Func::writeDebug(
                 <<"DEBUG") if $Foswiki::cfg{Plugins}{BibliographyPlugin}{Debug};
-_parseBibliographyTopics: did not have VIEW permission for $web.$topic
+Did not have VIEW permission for $web.$topic
 DEBUG
         }
     }
 
-    return $loaded;
+    return 1;
 }
 
 sub _bibliographyAlphaSort {
@@ -216,8 +276,13 @@ sub _bibliographyOrderSort {
 sub _generateBibliography {
     my ( $header, $sort_fn ) = @_;
     my @list;
-    my $output;
+    my $output = '';
 
+    Foswiki::Func::writeDebug('_generateBibliography()')
+      if $Foswiki::cfg{Plugins}{BibliographyPlugin}{Debug};
+
+    # There must be no deferred CITEs remaining
+    ASSERT( not $cites_deferred_total );
     foreach my $key ( sort { &{$sort_fn}( $a, $b ) } ( keys %cited_refs ) ) {
         push(
             @list,
@@ -235,7 +300,10 @@ sub _generateBibliography {
             )
         );
     }
-    $output = CGI::ol( { -class => 'BibliographyPluginReferences' }, @list );
+    if ( scalar(@list) ) {
+        $output =
+          CGI::ol( { -class => 'BibliographyPluginReferences' }, @list );
+    }
     if ( scalar(%missing_refs) ) {
         $output .= '<noautolink>'
           . CGI::div(

@@ -63,7 +63,7 @@ With %<nop/>CITEINLINE% you can reference things
 that are not in your bibliography
 %<nop/>CITEINLINE{http://foswiki.org/Extensions/BibliographyPlugin}%.
 
-%<nop/>BIBLIOGRAPHY{}%
+%<nop/>BIBLIOGRAPHY%
 </pre>
     </td>
     <td>
@@ -80,7 +80,7 @@ With %<nop/>CITEINLINE% you can reference things
 that are not in your bibliography
 %CITEINLINE{http://foswiki.org/Extensions/BibliographyPlugin}%.
 
-%BIBLIOGRAPHY{}%
+%BIBLIOGRAPHY%
     </td>
   </tr>
 </table>
