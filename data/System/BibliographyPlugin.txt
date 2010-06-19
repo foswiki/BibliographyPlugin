@@ -122,10 +122,11 @@ Plugin settings are stored as preferences values. To change the setting you need
 |  28 Aug 2005: | Adhering to official handlers in TWiki:Codev/DakarRelease. Added <code>%<nop/>CITEINLINE{...}%</code>. |
 |  23 Aug 2004: | Added multiple references sources support |
 |  17 Jun 2004: | Initial version |
-|  Dependencies: | None |
+|  Dependencies: | %$DEPENDENCIES% |
 |  Plugin Home: | http://foswiki.org/Extensions/%TOPIC% |
+|  Development: | http://foswiki.org/Development/%TOPIC% |
 |  Support: | http://foswiki.org/Support/%TOPIC% |
 
 __Related Topics:__ %SYSTEMWEB%.DefaultPreferences, %USERSWEB%.SitePreferences, [[%SYSTEMWEB%.Plugins][Plugins]]
 
-<!-- Do _not_ attempt to edit this topic; it is auto-generated. Please add comments/questions/remarks to the feedback topic on twiki.org instead. -->
+<!-- Do _not_ attempt to edit this topic; it is auto-generated. Please add comments/questions/remarks to the Development topic on foswiki.org instead. -->
