@@ -4,11 +4,13 @@ use warnings;
 use strict;
 
 our $VERSION          = '$Rev$';
-our $RELEASE          = '2.0.1';
+our $RELEASE          = '2.1';
 our $SHORTDESCRIPTION = <<'DESCRIPTION';
 Cite bibliography in one topic and get a references list automatically created.
 DESCRIPTION
 our $NO_PREFS_IN_TOPIC = 1;
+
+my $needInit;
 
 sub initPlugin {
     my ( $topic, $web ) = @_;
@@ -24,6 +26,7 @@ sub initPlugin {
     Foswiki::Func::registerTagHandler( 'CITE',         \&_CITE );
     Foswiki::Func::registerTagHandler( 'CITEINLINE',   \&_CITEINLINE );
     Foswiki::Func::registerTagHandler( 'BIBLIOGRAPHY', \&_BIBLIOGRAPHY );
+    $needInit = 1;
 
     # Plugin correctly initialized
     Foswiki::Func::writeDebug(
@@ -31,6 +34,17 @@ sub initPlugin {
       if $Foswiki::cfg{Plugins}{Bibliography}{Debug};
 
     return 1;
+}
+
+sub needInit {
+
+    return $needInit;
+}
+
+sub finishInit {
+    $needInit = 0;
+
+    return;
 }
 
 # _CITE, _CITEINLINE, _BIBLIOGRAPHY:

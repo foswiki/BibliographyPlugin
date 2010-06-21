@@ -111,6 +111,8 @@ Plugin settings are stored as preferences values. To change the setting you need
 |  Plugin Release: | %$RELEASE% |
 |  Plugin Version: | %$VERSION% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  22 Jun 2010 | 2.1: Foswikitask:Item9178 - Fix mod_perl/fastcgi problems; improve handling of cite keys\
+                                             using ',",& etc. punctuation chars -- Foswiki:Main.PaulHarvey |
 |  18 Jun 2010 | 2.0: Foswikitask:Item8394 - Made citation [refs] hyperlinks -- Foswiki:Main.PaulHarvey <br/>\
                  2.0: Foswikitask:Item8459 - Convert plugin from =commonTagsHandler= to =registerTagHandler=\
                                              and general code cleanup; Added Foswiki 1.1 compatibility; Minor\
