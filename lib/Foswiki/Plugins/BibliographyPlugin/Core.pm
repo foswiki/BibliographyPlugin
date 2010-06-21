@@ -8,7 +8,7 @@ use HTML::Entities;
 
 # Change to 1 for more debug messages. Perl compiler should optimise out
 # (ie. no CPU cost) any statement checking its value when set to zero.
-use constant TRACE => 1;
+use constant TRACE => 0;
 
 # Ensure that these globals are reinitilised in doInit() for persistent perl
 # Environments
