@@ -37,11 +37,11 @@ sub _addToCited {
 
 # Add user's $key to the bibliography, indexed by a filtered version of $key
 sub _addToBibliography {
-    my ($key, $value) = @_;
+    my ( $key, $value ) = @_;
 
-    $bibliography{_filterCiteKey($key)} = {
+    $bibliography{ _filterCiteKey($key) } = {
         userkey => $key,
-        value => $value
+        value   => $value
     };
 
     return;
@@ -49,9 +49,9 @@ sub _addToBibliography {
 
 # Handle a %CITE{}% where the reference exists in the bibliography.
 sub _CITE_exists {
-    my ($bibkey)       = @_;
-    my $encoded_userkey = _encode($bibliography{$bibkey}{userkey});
-    my $escaped_userkey = _escape($bibliography{$bibkey}{userkey});
+    my ($bibkey)        = @_;
+    my $encoded_userkey = _encode( $bibliography{$bibkey}{userkey} );
+    my $escaped_userkey = _escape( $bibliography{$bibkey}{userkey} );
 
     Foswiki::Func::writeDebug("%CITE{$bibkey}%: bibliography entry exists")
       if TRACE;
@@ -77,7 +77,7 @@ sub _CITE_exists {
 
 # Handle a %CITE{}% where the reference does not exist in the bibliography.
 sub _CITE_missing {
-    my ($citedkey)       = @_;
+    my ($citedkey) = @_;
     my $escaped_cited = _escape($citedkey);
 
     $missing_refs{$citedkey} = 1;
@@ -164,14 +164,13 @@ sub _doInit {
 sub CITE {
     my ( $session, $params, $topic, $web, $topicObject ) = @_;
     my $userkey = $params->{_DEFAULT};
-    my $bibkey = _filterCiteKey($userkey);
+    my $bibkey  = _filterCiteKey($userkey);
 
     # $topicObject is sometimes undef on save with 1.0.x
     if ($topicObject) {
         _doInit();
         if ($bibliography_loaded) {
-            Foswiki::Func::writeDebug(
-                "%CITE{$userkey}%: bibliography loaded")
+            Foswiki::Func::writeDebug("%CITE{$userkey}%: bibliography loaded")
               if $Foswiki::cfg{Plugins}{BibliographyPlugin}{Debug};
             if ( $params->{occurance} ) {
                 _CITE_undefer( $bibkey, $params->{occurance} );
@@ -209,7 +208,7 @@ HERE
 sub CITEINLINE {
     my ( $session, $params, $topic, $web, $topicObject ) = @_;
 
-    _addToBibliography($params->{_DEFAULT}, $params->{_DEFAULT});
+    _addToBibliography( $params->{_DEFAULT}, $params->{_DEFAULT} );
 
     return CITE( $session, $params, $topic, $web, $topicObject );
 }
@@ -299,15 +298,16 @@ sub _parseline {
 
     if ( $line =~ /^\|\s+([^\|]+)\s+\|\s+([^\|]+)\s+\|/ ) {
         my $userkey = $1;
-        my $bibkey = _filterCiteKey($userkey);
+        my $bibkey  = _filterCiteKey($userkey);
         if ($bibkey) {
             $bibliography{$bibkey} = {
                 userkey => $userkey,
-                value => $2
+                value   => $2
             };
 
             return 1;
-        } else {
+        }
+        else {
             return 0;
         }
     }
@@ -427,8 +427,7 @@ sub _generateBibliography {
             CGI::li(
                 '<noautolink>'
                   . CGI::a(
-                    { -name => _encode( $cited_refs{$bibkey}{userkey} ) }, ' '
-                  )
+                    { -name => _encode( $cited_refs{$bibkey}{userkey} ) }, ' ' )
                   . '</noautolink>',
                 $cited_refs{$bibkey}{value}
             )
