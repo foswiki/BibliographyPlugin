@@ -14,7 +14,7 @@ The Bibliography Plugin manages citations inside a Foswiki topic, and can genera
 
 ---++ Syntax Rules
 
-First of all, you must have a topic with a list of bibliography entries. Each entry must consist of a table rows with two columns: the first one contains a key, that will identify that entry (and __must__ be unique). The second column contains the bibliography reference for that entry.
+First of all, you must have a topic with a list of bibliography entries. Each entry must consist of a table rows with two columns: the first one contains a key, that will identify that entry (and __must__ be unique, without relying on whitespace or capitalisation variations). The second column contains the bibliography reference for that entry.
 
 The bibliography list should look like this (from a <nop/>BibTex [[http://shelah.logic.at/eindex.html][example]] found with [[http://www.google.com][Google]]):
 
@@ -55,7 +55,7 @@ You start writing, and then cite a
 small paper %<nop/>CITE{small}%. Further,
 you reference a big paper %<nop/>CITE{big}%.
 You can even reference the small
-paper again %<nop/>CITE{small}%. You might
+paper again %<nop/>CITE{Smal l}%. You might
 accidentally reference a non-existent 
 %<nop/>CITE{non-existent}% reference.
 
@@ -72,7 +72,7 @@ You start writing, and then cite a
 small paper %CITE{small}%. Further,
 you reference a big paper %CITE{big}%.
 You can even reference the small paper
-again %CITE{small}%. You might accidentally
+again %CITE{Smal l}%. You might accidentally
 reference a non-existent %CITE{non-existent}%
 reference.
 
@@ -111,6 +111,8 @@ Plugin settings are stored as preferences values. To change the setting you need
 |  Plugin Release: | %$RELEASE% |
 |  Plugin Version: | %$VERSION% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  23 Jun 2010 | 2.2: Foswikitask:Item9182 - Be more tolerant of whitespace/capitilisation variations\
+                                             -- Foswiki:Main.PaulHarvey |
 |  22 Jun 2010 | 2.1: Foswikitask:Item9178 - Fix mod_perl/fastcgi problems; improve handling of cite keys\
                                              using ',",& etc. punctuation chars -- Foswiki:Main.PaulHarvey |
 |  18 Jun 2010 | 2.0: Foswikitask:Item8394 - Made citation [refs] hyperlinks -- Foswiki:Main.PaulHarvey <br/>\

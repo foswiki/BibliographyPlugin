@@ -22,64 +22,82 @@ my %cited_refs;
 my %missing_refs;
 my %messages;
 
+sub _addToCited {
+    my ($bibkey) = @_;
+
+    $cite_sequence = $cite_sequence + 1;
+    $cited_refs{$bibkey} = {
+        value    => $bibliography{$bibkey}{value},
+        userkey  => $bibliography{$bibkey}{userkey},
+        sequence => $cite_sequence
+    };
+
+    return;
+}
+
+# Add user's $key to the bibliography, indexed by a filtered version of $key
+sub _addToBibliography {
+    my ($key, $value) = @_;
+
+    $bibliography{_filterCiteKey($key)} = {
+        userkey => $key,
+        value => $value
+    };
+
+    return;
+}
+
 # Handle a %CITE{}% where the reference exists in the bibliography.
 sub _CITE_exists {
-    my ($cit)       = @_;
-    my $encoded_cit = _encode($cit);
-    my $escaped_cit = _escape($cit);
+    my ($bibkey)       = @_;
+    my $encoded_userkey = _encode($bibliography{$bibkey}{userkey});
+    my $escaped_userkey = _escape($bibliography{$bibkey}{userkey});
 
-    Foswiki::Func::writeDebug("%CITE{$cit}%: bibliography entry exists")
+    Foswiki::Func::writeDebug("%CITE{$bibkey}%: bibliography entry exists")
       if TRACE;
 
     # Save this reference as cited so it may be included in the generated
     # Bibliography, but only if it hasn't been added before
-    if ( not exists $cited_refs{$cit} ) {
+    if ( not exists $cited_refs{$bibkey} ) {
         Foswiki::Func::writeDebug(
-            "%CITE{$cit}%: has not been cited before, added")
+            "%CITE{$bibkey}%: has not been cited before, added")
           if TRACE;
-        $cite_sequence = $cite_sequence + 1;
-        $cited_refs{$cit} = {
-            value    => $bibliography{$cit},
-            name     => $cit,
-            sequence => $cite_sequence
-        };
-        $cited_refs{$cit}{sequence} = $cite_sequence;
+        _addToCited($bibkey);
     }
     return '<noautolink>'
       . CGI::a(
         {
             -class => 'foswikiLink BibliographyPluginReference',
-            -title => $escaped_cit,
-            -href  => '#' . $encoded_cit
+            -title => $escaped_userkey,
+            -href  => '#' . $encoded_userkey
         },
-        '[' . $cited_refs{$cit}{sequence} . ']'
+        '[' . $cited_refs{$bibkey}{sequence} . ']'
       ) . '</noautolink>';
 }
 
 # Handle a %CITE{}% where the reference does not exist in the bibliography.
 sub _CITE_missing {
-    my ($cit)       = @_;
-    my $encoded_cit = _encode($cit);
-    my $escaped_cit = _escape($cit);
+    my ($citedkey)       = @_;
+    my $escaped_cited = _escape($citedkey);
 
-    $missing_refs{$cit} = 1;
+    $missing_refs{$citedkey} = 1;
     return '<noautolink>'
       . CGI::span(
         {
             -class => 'foswikiAlert BibliographyPluginMissingReference',
-            -title => 'Did not find reference "' . $escaped_cit . '".'
+            -title => 'Did not find reference "' . $escaped_cited . '".'
         },
         '[??]'
       ) . '</noautolink>';
 }
 
-# Forget about a %CITE{"$cit" occurance="$occurance_id"}% occurance from the
+# Forget about a %CITE{"$citekey" occurance="$occurance_id"}% occurance from the
 # registry of defferred %CITE{}% occurances.
 sub _CITE_undefer {
-    my ( $cit, $occurance_id ) = @_;
+    my ( $bibkey, $occurance_id ) = @_;
 
     Foswiki::Func::writeDebug( <<"HERE") if TRACE;
-%CITE{$cit}%: this was delayed as occurance $occurance_id; deleting
+%CITE{$bibkey}%: this was delayed as occurance $occurance_id; deleting
 HERE
     delete( $cites_deferred{$occurance_id} );
     $cites_deferred_total = $cites_deferred_total - 1;
@@ -87,30 +105,30 @@ HERE
     return;
 }
 
-# Remember this %CITE{"$cit"}% occurance in the registry of defferred occurances
+# Remember this %CITE{"$userkey"}% occurance in the registry of defferred occurances
 # SMELL: Foswiki API/EmptyPlugin docs say that one "cannot" make a macro return
 #        another macro, and yet here we are. Not sure how to do this otherwise,
 #        unless we re-introduce a commonTagsHandler; but then it becomes
 #        difficult to use CITE and BIBLIOGRAPHY from template topics, includes,
 #        formfields. Ideas welcome... - PH
 sub _CITE_defer {
-    my ($cit) = @_;
+    my ($userkey) = @_;
 
     $cites_deferred_total = $cites_deferred_total + 1;
     $cites_deferred{$cites_deferred_total} = 1;
     Foswiki::Func::writeDebug(
-"%CITE{$cit}%: Bibliography not loaded; delayed as occurance $cites_deferred_total"
+"%CITE{$userkey}%: Bibliography not loaded; delayed as occurance $cites_deferred_total"
     ) if TRACE;
 
-    return "%CITE{\"$cit\" occurance=\"$cites_deferred_total\"}%";
+    return "%CITE{\"$userkey\" occurance=\"$cites_deferred_total\"}%";
 }
 
 # Encode cite keys with HTML entities to ensure only valid chars when used as
 # <a name="... anchors
 sub _encode {
-    my ($cit) = @_;
+    my ($foo) = @_;
 
-    return HTML::Entities::encode($cit);
+    return HTML::Entities::encode($foo);
 }
 
 # Encode " and ' quotes to ensure the value will form a legal string when used
@@ -145,23 +163,24 @@ sub _doInit {
 
 sub CITE {
     my ( $session, $params, $topic, $web, $topicObject ) = @_;
-    my $cit = $params->{_DEFAULT};
+    my $userkey = $params->{_DEFAULT};
+    my $bibkey = _filterCiteKey($userkey);
 
     # $topicObject is sometimes undef on save with 1.0.x
     if ($topicObject) {
         _doInit();
         if ($bibliography_loaded) {
             Foswiki::Func::writeDebug(
-                "%CITE{$params->{_DEFAULT}}%: bibliography loaded")
+                "%CITE{$userkey}%: bibliography loaded")
               if $Foswiki::cfg{Plugins}{BibliographyPlugin}{Debug};
             if ( $params->{occurance} ) {
-                _CITE_undefer( $cit, $params->{occurance} );
+                _CITE_undefer( $bibkey, $params->{occurance} );
             }
-            if ( $bibliography{$cit} ) {
-                return _CITE_exists($cit);
+            if ( $bibliography{$bibkey} ) {
+                return _CITE_exists($bibkey);
             }
             else {
-                return _CITE_missing($cit);
+                return _CITE_missing($bibkey);
             }
         }
         else {
@@ -169,11 +188,11 @@ sub CITE {
             # Need to delay expansion of this macro until the bibliography is
             # loaded. If it hasn't been delayed before, give it an occurance id
             if ( not $params->{occurance} ) {
-                return _CITE_defer($cit);
+                return _CITE_defer($userkey);
             }
             else {
                 Foswiki::Func::writeDebug(<<"HERE") if TRACE;
-%CITE{$cit}%: Bibliography not loaded; already deferred as occurance $params->{occurance}
+%CITE{$userkey}%: Bibliography not loaded; already deferred as occurance $params->{occurance}
 HERE
                 return;
             }
@@ -190,7 +209,7 @@ HERE
 sub CITEINLINE {
     my ( $session, $params, $topic, $web, $topicObject ) = @_;
 
-    $bibliography{ $params->{_DEFAULT} } = $params->{_DEFAULT};
+    _addToBibliography($params->{_DEFAULT}, $params->{_DEFAULT});
 
     return CITE( $session, $params, $topic, $web, $topicObject );
 }
@@ -263,13 +282,34 @@ sub _loadBibliography {
     return _parseBibliographyTopics( $session, \@webTopics );
 }
 
+sub _filterCiteKey {
+    my ($citekey) = @_;
+    my $_cit = $citekey;
+
+    if ($_cit) {
+        $_cit =~ s/\s+//g;
+        $_cit = lc($_cit);
+    }
+
+    return $_cit;
+}
+
 sub _parseline {
     my ($line) = @_;
 
     if ( $line =~ /^\|\s+([^\|]+)\s+\|\s+([^\|]+)\s+\|/ ) {
-        $bibliography{$1} = $2;
+        my $userkey = $1;
+        my $bibkey = _filterCiteKey($userkey);
+        if ($bibkey) {
+            $bibliography{$bibkey} = {
+                userkey => $userkey,
+                value => $2
+            };
 
-        return 1;
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     return 0;
@@ -362,7 +402,7 @@ DEBUG
 sub _bibliographyAlphaSort {
     my ( $a, $b ) = @_;
 
-    return lc( $cited_refs{$a}{name} ) cmp lc( $cited_refs{$b}{name} );
+    return lc( $cited_refs{$a}{userkey} ) cmp lc( $cited_refs{$b}{userkey} );
 }
 
 sub _bibliographyOrderSort {
@@ -381,16 +421,16 @@ sub _generateBibliography {
 
     # There must be no deferred CITEs remaining
     ASSERT( not $cites_deferred_total );
-    foreach my $key ( sort { &{$sort_fn}( $a, $b ) } ( keys %cited_refs ) ) {
+    foreach my $bibkey ( sort { &{$sort_fn}( $a, $b ) } ( keys %cited_refs ) ) {
         push(
             @list,
             CGI::li(
                 '<noautolink>'
                   . CGI::a(
-                    { -name => _encode( $cited_refs{$key}{name} ) }, ' '
+                    { -name => _encode( $cited_refs{$bibkey}{userkey} ) }, ' '
                   )
                   . '</noautolink>',
-                $cited_refs{$key}{value}
+                $cited_refs{$bibkey}{value}
             )
         );
     }
