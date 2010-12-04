@@ -111,6 +111,7 @@ Plugin settings are stored as preferences values. To change the setting you need
 |  Plugin Release: | %$RELEASE% |
 |  Plugin Version: | %$VERSION% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  05 Dec 2010 | 2.2.1: Foswikitask:10113  - Fix incorrect use of Foswiki 1.1 API |
 |  23 Jun 2010 | 2.2: Foswikitask:Item9182 - Be more tolerant of whitespace/capitilisation variations\
                                              -- Foswiki:Main.PaulHarvey |
 |  22 Jun 2010 | 2.1: Foswikitask:Item9178 - Fix mod_perl/fastcgi problems; improve handling of cite keys\
