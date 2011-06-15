@@ -5,6 +5,7 @@ use strict;
 use warnings;
 use Assert;
 use HTML::Entities;
+use Encode;
 
 # Change to 1 for more debug messages. Perl compiler should optimise out
 # (ie. no CPU cost) any statement checking its value when set to zero.
@@ -375,7 +376,13 @@ sub _parseBibliographyTopics {
 
                 # Use a $fh rather than loope over a split(/[\r\n]+/
                 # ... so we save a little memory
-                if ( open my $text_fh, '<', \$text ) {
+                if (
+                    open my $text_fh,
+                    '<:encoding('
+                    . ( $Foswiki::cfg{Site}{CharSet} || 'iso-8859-1' ) . ')',
+                    \$text
+                  )
+                {
                     while ( my $line = <$text_fh> ) {
                         _parseline($line);
                     }
