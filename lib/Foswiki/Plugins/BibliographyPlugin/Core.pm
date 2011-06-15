@@ -286,6 +286,7 @@ sub _filterCiteKey {
     my $_cit = $citekey;
 
     if ($_cit) {
+        $_cit =~ s/<[^>]+>//g;
         $_cit =~ s/\s+//g;
         $_cit = lc($_cit);
     }
@@ -298,11 +299,16 @@ sub _parseline {
 
     if ( $line =~ /^\|\s+([^\|]+)\s+\|\s+([^\|]+)\s+\|/ ) {
         my $userkey = $1;
-        my $bibkey  = _filterCiteKey($userkey);
+        my $bibkey;
+        my $value = $2;
+
+        $userkey =~ s/<[^>]+>//g;
+        $bibkey = _filterCiteKey($userkey);
+
         if ($bibkey) {
             $bibliography{$bibkey} = {
                 userkey => $userkey,
-                value   => $2
+                value   => $value
             };
 
             return 1;
