@@ -4,7 +4,7 @@ use warnings;
 use strict;
 
 our $VERSION          = '$Rev$';
-our $RELEASE          = '2.2.1';
+our $RELEASE          = '2.2.2';
 our $SHORTDESCRIPTION = <<'DESCRIPTION';
 Cite bibliography in one topic and get a references list automatically created.
 DESCRIPTION

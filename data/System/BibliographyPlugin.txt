@@ -111,6 +111,8 @@ Plugin settings are stored as preferences values. To change the setting you need
 |  Plugin Release: | %$RELEASE% |
 |  Plugin Version: | %$VERSION% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  15 Jun 2011 | 2.2.2: Foswikitask:Item10882 - Fix for Foswiki installations using UTF-8, international charsets %BR%\
+                                              - ignore HTML tags in cite keys -- Foswiki:Main.PaulHarvey |
 |  05 Dec 2010 | 2.2.1: Foswikitask:Item10113 - Fix incorrect use of Foswiki 1.1 API |
 |  23 Jun 2010 | 2.2: Foswikitask:Item9182 - Be more tolerant of whitespace/capitilisation variations\
                                              -- Foswiki:Main.PaulHarvey |
