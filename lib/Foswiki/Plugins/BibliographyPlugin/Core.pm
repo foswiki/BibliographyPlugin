@@ -373,25 +373,9 @@ sub _parseBibliographyTopics {
             my $text = $topicObject->text();
 
             if ($text) {
-
-                # Use a $fh rather than loope over a split(/[\r\n]+/
-                # ... so we save a little memory
-                if (
-                    open my $text_fh,
-                    '<:encoding('
-                    . ( $Foswiki::cfg{Site}{CharSet} || 'iso-8859-1' ) . ')',
-                    \$text
-                  )
-                {
-                    while ( my $line = <$text_fh> ) {
-                        _parseline($line);
-                    }
-                    ASSERT( close($text_fh),
-                        '_parseBibliographyTopics: error closing text_fh' );
-                }
-                else {
-                    ASSERT( 0,
-                        '_parseBibliographyTopics: error opening text_fh' );
+                my @text_array = split(/[\r\n]+/, $text);
+                foreach my $line (@text_array) {
+                    _parseline($line)
                 }
             }
             else {
